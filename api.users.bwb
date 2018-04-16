@@ -1,0 +1,39 @@
+//import du framework express
+var express = require("express");
+var bodyParser = require("body-parser");
+
+//création d'un objet express nommé app
+var app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true })); 
+
+app.listen(3000, "192.168.1.56");
+console.log("l'application est en cours d'execution");
+
+var users = {
+    username : "administrateur",
+    password : "azerty",
+    isConnected : false
+            };
+
+
+//requete de type get en lien avec la fonction isConnected pour connaitre l'état du booléen isConnected afin d'éviter de demander à l'admin
+//de se relog à de multiple reprise si il a besoin de changer de pages
+app.get('/connected', function(request, response){
+    response.header('Access-Control-Allow-Origin', '*');
+            response.setHeader('Content-Type', 'application/json');
+            response.status(200).json(users);
+});
+
+//requete post qui va récuper les identifiants dans les champs input lors du login et va les comparer avec les données de Users
+app.post('/verify', function(req, res){
+    res.header('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'application/json');
+    var user = req.body;
+    if(user.password === users.password && user.username === users.username){
+        users.isConnected = true;
+        res.status(200).json(user);
+    }else{
+        res.status(401).send("erreur d'authentification");
+    }
+});
